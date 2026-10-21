@@ -1,4 +1,12 @@
+build/
 __pycache__/
 *.pyc
-data/raw_telemetry.jsonl
-data/identifiers.json
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+dist/
+.coverage
+coverage.xml

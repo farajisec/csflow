@@ -1,0 +1,9 @@
+{
+  "k_min_group_size": 5,
+  "publish_delay_minutes": 60,
+  "history_hours": 24,
+  "history_bucket_minutes": 60,
+  "small_group_label": "other",
+  "noise": {"enabled": false, "epsilon": 2.0},
+  "forbidden_patterns": ["ipv4", "ipv6", "mac", "fqdn", "email", "serial", "uuid"]
+}

@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev]"
+      - run: ruff check src tests
+      - run: mypy src
+      - run: pytest --cov=csflow --cov-report=term-missing
+      - name: pipeline, gate and report (strict)
+        run: csflow --build build all --strict
+      - name: the gate must refuse a leak
+        run: |
+          csflow --build build-leak simulate
+          csflow --build build-leak aggregate
+          csflow --build build-leak render
+          python -c "import json,pathlib; p=pathlib.Path('build-leak/aggregates.json'); d=json.load(open(p)); d['debug']=json.load(open('build-leak/inventory.json'))[0]['hostname']; json.dump(d,open(p,'w'))"
+          if csflow --build build-leak gate; then echo "gate passed a leaked hostname"; exit 1; else echo "gate refused, as it must"; fi
+      - uses: actions/upload-artifact@v4
+        if: matrix.python == '3.12'
+        with:
+          name: published-artifacts
+          path: |
+            build/aggregates.json
+            build/site/index.html
+            build/report.md
